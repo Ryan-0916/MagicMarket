@@ -1,0 +1,184 @@
+Title:
+  Background:
+    Text: '全球市场'
+  Page:
+    Text: '%page%'
+    Left: true
+  Mid:
+    Text: '/'
+  MaxPage:
+    Text: '%max_page%'
+    Right: true
+  BackMenu:
+    Text: '%back_menu%'
+  SelectedCategory:
+    Text: '%selected_category_N%'
+  Sort:
+    Text: '%sort%'
+
+Category:
+  All:
+    Display:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L全部'
+      Lore:
+        - '&6&L全部'
+  Others:
+    Display:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L其他'
+      Lore:
+        - '&6&L其他'
+
+CustomPapi:
+  BackMenu:
+    Enable: '取消'
+    UnEnable: '关闭'
+  PrePage:
+    Enable: '可以上一页'
+    UnEnable: '不可以上一页'
+  NextPage:
+    Enable: '可以下一页'
+    UnEnable: '不可以下一页'
+  Sort:
+    Newest: '最新'
+    Oldest: '即将过期'
+    Expensive: '最昂贵'
+    Cheapest: '最廉价'
+  # N 为你每页的分类个数 1 - N 例如你每页有 4个分页个数则为 1-4
+  SelectedCategory_N:
+    Enable: '选中'
+    UnEnable: '未选择'
+
+
+# # 默认材质
+# A 返回 / 关闭
+# B 刷新
+# C 分类上一页
+# D 分类
+# E 分类下一页
+# F 商品
+# G 上一页
+# H 下一页
+# I 排序
+# J 我的市场
+Layout:
+  - 'ABCDDDDDE'
+  - 'FFFFFFFFF'
+  - 'FFFFFFFFF'
+  - 'FFFFFFFFF'
+  - 'FFFFFFFFF'
+  - 'G#####HIJ'
+
+Icons:
+  A:
+    OpenDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L返回'
+      Lore:
+        - '&6&L返回'
+    CloseDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L关闭'
+      Lore:
+        - '&6&L关闭'
+  B:
+    Display:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L刷新'
+      Lore:
+        - '&6&L刷新'
+  C:
+    ActiveDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L上一个分类'
+      Lore:
+        - '&6&L上一个分类'
+    DisabledDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L上一个分类'
+      Lore:
+        - '&6&L上一个分类'
+  E:
+    ActiveDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L下一个分类'
+      Lore:
+        - '&6&L下一个分类'
+    DisabledDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L下一个分类'
+      Lore:
+        - '&6&L下一个分类'
+  G:
+    ActiveDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L上一页'
+      Lore:
+        - '&6&L上一页'
+    DisabledDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L上一页'
+      Lore:
+        - '&6&L上一页'
+  H:
+    ActiveDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L下一页'
+      Lore:
+        - '&6&L下一页'
+    DisabledDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L下一页'
+      Lore:
+        - '&6&L下一页'
+  I:
+    NewestDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L最新上架'
+      Lore:
+        - '&6&L最新上架'
+        - '&6&L即将到期'
+        - '&6&L价格降序'
+        - '&6&L价格升序'
+    OldestDisplay:
+      Mats: GLASS_PANE
+      ModelData: 0
+      Name: '&E&L即将过期'
+      Lore:
+        - '&6&L最新上架'
+        - '&6&L即将到期'
+        - '&6&L价格降序'
+        - '&6&L价格升序'
+    ExpensiveDisplay:
+      Mats: GLASS_PANE
+      ModelData: 0
+      Name: '&6&L价格降序'
+      Lore:
+        - '&6&L最新上架'
+        - '&6&L即将到期'
+        - '&6&L价格降序'
+        - '&6&L价格升序'
+    CheapestDisplay:
+      Mats: GLASS_PANE
+      ModelData: 0
+      Name: '&6&L价格升序'
+      Lore:
+        - '&6&L最新上架'
+        - '&6&L即将到期'
+        - '&6&L价格降序'
+        - '&6&L价格升序'

@@ -1,0 +1,9 @@
+DataSource:
+  # Redis 连接地址
+  Host: 127.0.0.1
+  # Redis 端口号
+  Port: 6379
+  # Redis 使用密码模式
+  PasswordModel: false
+  # Redis 密码
+  Password: PASSWORD

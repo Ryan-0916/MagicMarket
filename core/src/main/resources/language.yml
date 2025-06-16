@@ -1,0 +1,106 @@
+# 插件语言文件，支持 MiniMessage
+# 支持自定义语言标签，标签中同样支持 MiniMessage
+# 自定义消息可混合使用，类型如下
+
+#=================Message 文本消息=================#
+#默认使用的是 Message 标签
+#使用方式 <message>Hello world</message>
+#发送 Hello world 文本给玩家
+#内连属性：
+#消息发送次数 <times>5</times> 默认值 1
+#消息发送间隔 <interval>1.5</interval> 默认值 1
+#倒序 <desc>true</desc> 默认值 false
+#是否需要支持 &x&F&F&F&F&F&F hex 颜色写法 <legacy>true</legacy> 默认值 false
+#内置变量：
+#当前循环次数 %times% - 如果开启反转将会置为倒序
+
+#例子 - 以倒计时为例子轮询发送 5、4、3、2、1
+#<message>%times%<times>5</times><desc>true</desc></message>
+#=================Message 文本消息=================#
+
+
+#=================Sound 声音消息=================#
+#使用方法 <sound>ambient.basalt_deltas.additions</sound>
+#其中 ambient.basalt_deltas.additions 为您的声音路径
+#内连属性：
+#音量 <volume>1</volume> 默认值 1.0
+#音准 <pitch>1</pitch> 默认值 1.0
+#音速 <speed>1</speed> 默认值 1
+#消息发送次数 <times>5</times> 默认值 1
+#=================Sound 声音消息=================#
+
+
+#=================Title 标题消息=================#
+#使用方法 <title>Hello world</title>
+#发送 Hello world 标签给玩家
+#内连属性：
+#消息渐入时间 (秒) <in>0.5</in> 默认值 0.0
+#消息渐出时间 (秒) <out>0.5</out> 默认值 0.0
+#消息保留时间 (秒) <keep>0.5</keep> 默认值 0.0
+#子标题 <subTitle>Hello</subTitle>
+#消息发送次数 <times>5</times> 默认值 1
+#消息发送间隔 <interval>1.5</interval> 默认值 1
+#倒序 <desc>true</desc> 默认值 false
+#是否需要支持 &x&F&F&F&F&F&F hex 颜色写法 <legacy>true</legacy> 默认值 false
+#内置变量：
+#当前循环次数 %times% - 如果开启反转将会置为倒序
+#=================Title 标题消息=================#
+
+
+#=================Toast 成就消息=================#
+#使用方法 <toast>Hello world</toast>
+#发送一条 Hello world 成就信息给玩家
+#内连属性：
+#成就信息图标 <material>NAME_TAG</material> 默认值 NAME_TAG(命名牌)
+#图标材质数据 <modelData>1</modelData> 默认值 0
+#成就类型 <type>TASK</type> 可填TASK、CHALLENGE、GOAL 默认值 TASK
+#按 F 执行的指令 <command>help</command> 默认值 不执行
+#可按 F 的判断时间 （秒）<inValidateTime>7</inValidateTime> 默认值 7.0
+#是否需要支持 &x&F&F&F&F&F&F hex 颜色写法 <legacy>true</legacy> 默认值 false
+#=================Toast 成就消息=================#
+
+
+#=================Totem 图腾消息=================#
+#使用方法 <toast><modelData>0</modelData></toast>
+#发送一条图腾特效玩家
+#内连属性：
+#图腾材质数据 <modelData>1</modelData> 默认值 0
+#=================Totem 图腾消息=================#
+
+
+#=================ActionBar 物品栏信息=================#
+#使用方法 <actionBar>Hello world</actionBar>
+#发送一条 Hello world 物品栏信息
+#内连属性：
+#消息发送次数 <times>5</times> 默认值 1
+#消息发送间隔 <interval>1.5</interval> 默认值 1
+#倒序 <desc>true</desc> 默认值 false
+#是否需要支持 &x&F&F&F&F&F&F hex 颜色写法 <legacy>true</legacy> 默认值 false
+#是否需要打字机一样的效果，每个字单独蹦出 <printer>true</printer> 默认值 false
+#打印的总时间 <printerTime>1</printerTime> 默认值 1
+#打印的消息的前缀 <printerPrefix>前缀</printerPrefix> 默认值 空
+#内置变量：
+#当前循环次数 %times% - 如果开启反转将会置为倒序
+#=================ActionBar 物品栏信息=================#
+
+
+SystemUnKnowError: "系统异常，请联系管理员"
+PlayerMessage:
+  Error:
+    PermissionDenied: "权限不足"
+    NotConsole: "此命令仅控制台可用"
+    UnknownCommand: "未知的指令"
+    ReloadFile: "重载文件异常"
+    ButtonCooldown: "按钮正在冷却中"
+    ParameterError: "参数错误"
+    NullProduct: "必须手持物品上架"
+    ProhibitedProduct: "该物品为禁售商品"
+    ProhibitedProductInContainers: "该物品容器中存在禁售商品"
+    ExpensiveServiceCharge: "上架失败，服务费过于昂贵"
+  Success:
+    ReloadFile: "重载文件成功"
+    SellCancel: "您已取消上架该商品"
+    SellProduct: "商品上架成功"
+ConsoleMessage:
+  Error:
+    NotPlayer: "此命令仅玩家可用"

@@ -1,0 +1,14 @@
+name: MagicMarket
+version: ${projectVersion}
+main: com.magicrealms.magicmarket.core.BukkitMagicMarket
+api-version: 1.21
+author: Ryan0916
+commands:
+  MagicMarket:
+    description: '魔法领域-全球市场'
+    aliases:
+      - market
+softDepend:
+  - MagicLib
+  - MagicPlayer
+  - MagicMail

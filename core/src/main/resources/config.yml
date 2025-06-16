@@ -1,0 +1,48 @@
+# 物品分类
+Category:
+  Tool:
+    Path: category/tool.yml
+    Weight: 0
+
+Cache:
+  ValidProducts: 3600
+
+Settings:
+  # 服务费，它是比率
+  # 如服务器为 0.1 则 100 元商品收取 10 元
+  SellTax: 0
+  # 有效期天数，上架天数
+  ShelfLife: 7
+  # 商品 Lore
+  ProductLore:
+    # 默认显示的 Lore
+    Default:
+      - '&E&L价格: %price%'
+      - '&E&L发布者: %seller_avatar% %seller_name%'
+      - '&E&L有效期至: %expiration_time_yyyy%-%expiration_time_MM%-%expiration_time_dd%'
+    # 其他玩家显示的 Lore
+    Player:
+      - '&E&L点击购买'
+    # 自己显示的 Lore
+    Self:
+      TakenDown:
+        - '&E&L商品已下架'
+        - '&E&L下架者: %removal_name%'
+        - '&E&L下架理由: %removal_reasons%'
+        - '&E&L点击领取'
+      OnSale:
+        - '&E&L点击下架'
+    # Op 显示的 Lore
+    Op:
+      - '&E&LShift + 左键下架'
+    # 上架时显示的 Lore
+    Sell:
+      - '&E&L出售价格: %price%'
+      - '&E&L服务费: %service_charge%'
+      - '&E&L有效期至: %expiration_time_yyyy%-%expiration_time_MM%-%expiration_time_dd% %expiration_time_HH%:%expiration_time_mm%ꐓ分'
+    # OP 下架时显示的 Lore
+    OpSoldOut:
+      - '下架理由: %removal_reasons%'
+    # 玩家 下架时显示的 Lore
+    SelfSoldOut:
+      - '手动下架将不会退还服务费'

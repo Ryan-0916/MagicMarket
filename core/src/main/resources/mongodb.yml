@@ -1,0 +1,7 @@
+DataSource:
+  # 数据库服务器地址
+  Host: 127.0.0.1
+  # 数据库服务器端口号
+  Port: 27017
+  # 数据库库名
+  Database: 'magic_realms'
