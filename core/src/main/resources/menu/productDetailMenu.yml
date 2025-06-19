@@ -1,36 +1,10 @@
 Title:
   Background:
-    Text: '全球市场'
-  Page:
-    Text: '%page%'
-    Left: true
-  Mid:
-    Text: '/'
-  MaxPage:
-    Text: '%max_page%'
-    Right: true
-  BackMenu:
-    Text: '%back_menu%'
-  SelectedCategory:
-    Text: '%selected_category_N%'
-  Sort:
-    Text: '%sort%'
-
-Category:
-  All:
-    Display:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L全部'
-      Lore:
-        - '&6&L全部'
-  Others:
-    Display:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L其他'
-      Lore:
-        - '&6&L其他'
+    Text: '物品详情菜单'
+  Prompt:
+    Text: '%prompt%'
+  BuyButton:
+    Text: '%buy_button%'
 
 CustomPapi:
   BackMenu:
@@ -42,35 +16,35 @@ CustomPapi:
   NextPage:
     Enable: '可以下一页'
     UnEnable: '不可以下一页'
+  BuyButton:
+    Enable: '可以购买'
+    UnEnable: '不可购买'
   Sort:
     Newest: '最新'
     Oldest: '即将过期'
     Expensive: '最昂贵'
     Cheapest: '最廉价'
-  # N 为你每页的分类个数 1 - N 例如你每页有 4个分页个数则为 1-4
-  SelectedCategory_N:
-    Enable: '选中'
-    UnEnable: '未选择'
-
+  Prompt:
+    Default: '市场找到了相同的物品'
+    InsufficientAmount: '点击的物品因余额不足无法购买'
 
 # # 默认材质
 # A 返回 / 关闭
 # B 刷新
-# C 分类上一页
-# D 分类
-# E 分类下一页
-# F 商品
-# G 上一页
-# H 下一页
-# I 排序
-# J 我的市场
+# C 是预览物品
+# D 点击购买
+# E 同分类物品
+# F 上一页
+# G 下一页
+# H 排序
+# I 我的市场
 Layout:
-  - 'ABCDDDDDE'
-  - 'FFFFFFFFF'
-  - 'FFFFFFFFF'
-  - 'FFFFFFFFF'
-  - 'FFFFFFFFF'
-  - 'G#####HIJ'
+  - 'AB##C###D'
+  - 'EEEEEEEEE'
+  - 'EEEEEEEEE'
+  - 'EEEEEEEEE'
+  - 'EEEEEEEEE'
+  - 'F#####GHI'
 
 Icons:
   A:
@@ -93,59 +67,46 @@ Icons:
       Name: '&E&L刷新'
       Lore:
         - '&6&L刷新'
-  C:
+  D:
     ActiveDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L上一个分类'
+      Name: '&E&L点击购买'
       Lore:
-        - '&6&L上一个分类'
+        - '&6&L点击购买'
     DisabledDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L上一个分类'
+      Name: '&E&L金币不足'
       Lore:
-        - '&6&L上一个分类'
-  E:
+        - '&6&L金币不足'
+  F:
     ActiveDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L下一个分类'
+      Name: '&E&L上一页'
       Lore:
-        - '&6&L下一个分类'
+        - '&6&L上一页'
     DisabledDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L下一个分类'
+      Name: '&E&L上一页'
       Lore:
-        - '&6&L下一个分类'
+        - '&6&L上一页'
   G:
     ActiveDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L上一页'
+      Name: '&E&L下一页'
       Lore:
-        - '&6&L上一页'
+        - '&6&L下一页'
     DisabledDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L上一页'
+      Name: '&E&L下一页'
       Lore:
-        - '&6&L上一页'
+        - '&6&L下一页'
   H:
-    ActiveDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L下一页'
-      Lore:
-        - '&6&L下一页'
-    DisabledDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L下一页'
-      Lore:
-        - '&6&L下一页'
-  I:
     NewestDisplay:
       Mats: PAPER
       ModelData: 10000
@@ -182,7 +143,7 @@ Icons:
         - '&6&L即将到期'
         - '&6&L价格降序'
         - '&6&L价格升序'
-  J:
+  I:
     Display:
       Mats: PAPER
       ModelData: 10000

@@ -151,7 +151,7 @@ public class BukkitMagicMarket extends MagicMarket {
     @Override
     protected void loadConfig(ConfigManager configManager) {
         configManager.loadConfig(YML_CONFIG, YML_LANGUAGE,
-                YML_MONGODB, YML_REDIS, YML_BLACKLIST, YML_MARKET_MENU);
+                YML_MONGODB, YML_REDIS, YML_BLACKLIST, YML_MARKET_MENU, YML_PRODUCT_DETAIL_MENU, YML_PLAYER_MARKET_MENU);
     }
 
     @Override

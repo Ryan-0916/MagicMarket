@@ -25,4 +25,6 @@ public interface IProductRepository extends IBaseRepository<Product> {
      */
     List<Product> queryValidProducts();
 
+    boolean buyProduct(String id);
+
 }

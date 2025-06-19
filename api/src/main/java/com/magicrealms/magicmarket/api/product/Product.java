@@ -1,25 +1,31 @@
 package com.magicrealms.magicmarket.api.product;
 
+import com.magicrealms.magiclib.bukkit.message.helper.AdventureHelper;
 import com.magicrealms.magiclib.common.adapt.BigDecimalFieldAdapter;
 import com.magicrealms.magiclib.common.adapt.UUIDFieldAdapter;
 import com.magicrealms.magiclib.common.annotations.FieldId;
 import com.magicrealms.magiclib.common.annotations.MongoField;
+import com.magicrealms.magiclib.common.utils.FormatUtil;
 import com.magicrealms.magiclib.common.utils.IdGeneratorUtil;
+import com.magicrealms.magiclib.common.utils.StringUtil;
 import com.magicrealms.magiclib.core.adapt.ItemStackFieldAdapter;
+import com.magicrealms.magiclib.core.utils.ItemUtil;
 import com.magicrealms.magicmarket.api.MagicMarket;
 import com.magicrealms.magicmarket.api.product.adapter.ProductStatusAdapter;
+import com.magicrealms.magicplayer.api.MagicPlayerAPI;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_CONFIG;
 
@@ -70,8 +76,6 @@ public class Product {
     @MongoField
     private String removalReasons;
 
-    private final Map<String, List<String>> LORE_CACHE = new HashMap<>();
-
     public static Product.ProductBuilder builder(Player seller, ItemStack product, BigDecimal price) {
         Objects.requireNonNull(seller, "Seller cannot be null");
         Objects.requireNonNull(product, "Product cannot be null");
@@ -86,7 +90,7 @@ public class Product {
                 .shelfTime(System.currentTimeMillis());
     }
 
-    public double getPrice() {
+    public double getDoublePrice() {
         return price.doubleValue();
     }
 
@@ -106,43 +110,72 @@ public class Product {
      * @return true 如果已过期，false 如果未过期或永不过期
      */
     public boolean isExpired() {
-        if (shelfLife <= 0) {
-            return false; // 永不过期
-        }
-        return System.currentTimeMillis() > getExpirationTime();
+        return shelfLife > 0 && System.currentTimeMillis() > getExpirationTime();
     }
 
     private List<String> getYmlProductLore(String key) {
-        return LORE_CACHE.computeIfAbsent(key,
-                k ->MagicMarket.getInstance().getConfigManager()
-                        .getYmlListValue(YML_CONFIG, String.format("Settings.ProductLore.%s", key))
-                        .orElse(new ArrayList<>()));
+        return MagicMarket.getInstance().getConfigManager()
+                .getYmlListValue(YML_CONFIG, String.format("Settings.ProductLore.%s", key))
+                .orElse(new ArrayList<>());
     }
 
-//    public ItemStack getProductInMenu(Player player) {
-//        ItemStack itemStack = getProduct().clone();
-//        List<Component> lore = new ArrayList<>();
-//        /* 商品本身的 Lore */
-//        Optional.ofNullable(itemStack.lore()).ifPresent(lore::addAll);
-//        List<String> newLore = getYmlProductLore("Default");
-//        boolean isSelf = StringUtils.equalsIgnoreCase(player.getName(), sellerName);
-//        if (isSelf) {
-//            if (productStatus == ProductStatus.ON_SALE) {
-//                newLore.addAll(selfOnSaleLore);
-//            } else {
-//                Map<String, String> map = new HashMap<>();
-//                map.put("removal_name", removalName);
-//                map.put("removal_reasons", removalReasons);
-//                newLore.addAll(selfTakenDownLore.stream().map(e -> StringUtil.replacePlaceholder(e, map)).toList());
-//            }
-//        } else {
-//            newLore.addAll(playerLore);
-//            if (player.hasPermission("magic.command.globalmarket.operation")) {
-//                newLore.addAll(opLore);
-//            }
-//        }
-//        lore.addAll(newLore.stream().map(e -> ItemUtil.UN_ITALIC.append(AdventureHelper.getMiniMessage().deserialize(e))).toList());
-//        itemStack.lore(lore);
-//        return itemStack;
-//    }
+    private Map<String, String> createDefaultPlaceholders() {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("price", FormatUtil.formatAmount(price));
+        placeholders.put("seller_name", sellerName);
+        placeholders.put("seller_avatar", MagicPlayerAPI.getInstance().getPlayerAvatar(sellerName));
+        placeholders.putAll(FormatUtil.formatDateTime(getExpirationTime(), "expiration_time_"));
+        return placeholders;
+    }
+
+    private List<Component> processLoreLines(List<String> loreLines, Map<String, String> placeholders) {
+        return loreLines.stream()
+                .map(line -> ItemUtil.UN_ITALIC.append(
+                        AdventureHelper.getMiniMessage().deserialize(
+                                placeholders != null ? StringUtil.replacePlaceholders(line, placeholders) : line
+                        )
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private ItemStack buildItemWithLore(ItemStack baseItem, List<Component> additionalLore) {
+        ItemStack item = baseItem.clone();
+        List<Component> lore = new ArrayList<>();
+        Optional.ofNullable(item.lore()).ifPresent(lore::addAll);
+        lore.addAll(additionalLore);
+        item.lore(lore);
+        return item;
+    }
+
+    public ItemStack getDefaultLoreProduct() {
+        List<Component> lore = processLoreLines(getYmlProductLore("Default"), createDefaultPlaceholders());
+        return buildItemWithLore(getProduct(), lore);
+    }
+
+    public ItemStack getMenuProduct(Player player) {
+        Map<String, String> placeholders = createDefaultPlaceholders();
+        List<Component> lore = processLoreLines(getYmlProductLore("Default"), placeholders);
+        if (sellerUniqueId.equals(player.getUniqueId())) {
+            if (status == ProductStatus.ON_SALE) {
+                lore.addAll(processLoreLines(getYmlProductLore("Self.OnSale"), null));
+            } else {
+                Map<String, String> takenDownPlaceholders = new HashMap<>();
+                takenDownPlaceholders.put("removal_name", removalName);
+                takenDownPlaceholders.put("removal_reasons", removalReasons);
+                lore.addAll(processLoreLines(getYmlProductLore("Self.TakenDown"), takenDownPlaceholders));
+            }
+            return buildItemWithLore(getProduct(), lore);
+        }
+        lore.addAll(processLoreLines(getYmlProductLore("Player"), null));
+        if (player.hasPermission("magic.command.magicmarket.taken.down") ||
+                player.hasPermission("magic.command.magicmarket.all")) {
+            lore.addAll(processLoreLines(getYmlProductLore("Op"), null));
+        }
+        return buildItemWithLore(getProduct(), lore);
+    }
+
+    public String getType() {
+        return product.getType().name() + "::" + (product.getItemMeta().hasCustomModelData() ? product.getItemMeta().getCustomModelData() : "0");
+    }
+
 }

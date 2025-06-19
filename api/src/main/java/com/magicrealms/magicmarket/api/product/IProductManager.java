@@ -26,4 +26,9 @@ public interface IProductManager {
      * @return 仅查询正在上架的商品
      */
     List<Product> queryOnSaleProducts();
+
+    /**
+     * 购买商品
+     */
+    void buyProduct(Player buyer, Product product);
 }

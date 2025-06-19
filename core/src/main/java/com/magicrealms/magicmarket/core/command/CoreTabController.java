@@ -20,17 +20,17 @@ import java.util.stream.Stream;
 public class CoreTabController {
 
     private static final Supplier<Stream<String>> fileNames
-            = () -> Stream.of("all", "config", "language", "redis", "mongodb", "blacklist", "marketMenu");
+            = () -> Stream.of("all", "config", "language", "redis", "mongodb", "blacklist", "marketMenu", "productDetailMenu", "playerMarketMenu");
 
     @TabComplete(text = "^\\s?$", permissionType = PermissionType.CONSOLE_OR_PERMISSION,
-            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicPlayer$")
+            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
     public List<String> first(CommandSender sender, String[] args) {
         return Stream.of("reload")
                 .toList();
     }
 
     @TabComplete(text = "^\\S+$", permissionType = PermissionType.CONSOLE_OR_PERMISSION,
-            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicPlayer$")
+            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
     public List<String> firstTab(CommandSender sender, String[] args) {
         return Stream.of("reload")
                 .filter(e ->
@@ -39,14 +39,14 @@ public class CoreTabController {
     }
 
     @TabComplete(text = "^Reload\\s$", permissionType = PermissionType.CONSOLE_OR_PERMISSION,
-            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicPlayer$")
+            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
     public List<String> reload(CommandSender sender, String[] args) {
         return fileNames.get()
                 .toList();
     }
 
     @TabComplete(text = "^Reload\\s\\S+$", permissionType = PermissionType.CONSOLE_OR_PERMISSION,
-            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicPlayer$")
+            permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
     public List<String> reloadTab(CommandSender sender, String[] args) {
         return fileNames.get().filter(e ->
                 StringUtils.startsWithIgnoreCase(e, args[1]))

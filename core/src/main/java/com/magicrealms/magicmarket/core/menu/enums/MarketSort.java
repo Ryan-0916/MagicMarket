@@ -1,9 +1,13 @@
 package com.magicrealms.magicmarket.core.menu.enums;
 
 import com.magicrealms.magiclib.core.utils.ItemUtil;
+import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Ryan-0916
@@ -50,5 +54,14 @@ public enum MarketSort {
         String path = String.format("Icons.%s.%s", key, this.path + "Display");
         return ItemUtil.getItemStackByConfig(BukkitMagicMarket.getInstance().getConfigManager(),
                 yml, path);
+    }
+
+    public void sort(List<Product> data) {
+        switch (this) {
+            case NEWEST -> data.sort(Comparator.comparingLong(Product::getShelfTime).reversed());
+            case OLDEST -> data.sort(Comparator.comparingLong(Product::getShelfTime));
+            case EXPENSIVE -> data.sort(Comparator.comparingDouble(Product::getDoublePrice).reversed());
+            case CHEAPEST -> data.sort(Comparator.comparingDouble(Product::getDoublePrice));
+        }
     }
 }

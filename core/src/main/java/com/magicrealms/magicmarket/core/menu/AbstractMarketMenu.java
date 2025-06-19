@@ -8,8 +8,8 @@ import com.magicrealms.magicmarket.core.menu.enums.MarketSort;
 import com.magicrealms.magicmarket.core.menu.listener.MarketMenuObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ public abstract class AbstractMarketMenu extends AbstractCategoryMenu implements
     public AbstractMarketMenu(BukkitMagicMarket plugin, Player player, List<Product> data, String configPath, String defLayout, Runnable backMenuRunnable) {
         super(plugin, player, data, configPath, defLayout, backMenuRunnable);
         this.data = CATEGORY_CACHE.get(CATEGORY_NAMES.get(cActive));
-        sortData();
+        sort.sort(data);
         this.PAGE_COUNT = StringUtils.countMatches(getLayout(), "F");
         setMaxPage(PAGE_COUNT <= 0 || data.isEmpty() ? 1 :
                 data.size() % PAGE_COUNT == 0 ?
@@ -39,9 +39,17 @@ public abstract class AbstractMarketMenu extends AbstractCategoryMenu implements
         asyncOpenMenu();
     }
 
+
+    @Override
+    public void changeProducts() {
+        setUpCategoryData();
+        changeCategory();
+    }
+
+
     @Override
     public void changeSort() {
-        sortData();
+        sort.sort(data);
         /* 释放缓存 */
         cleanItemCache();
         /* 回退至第一页 */
@@ -55,16 +63,10 @@ public abstract class AbstractMarketMenu extends AbstractCategoryMenu implements
     @Override
     public void changeCategory() {
         this.data = CATEGORY_CACHE.get(CATEGORY_NAMES.get(cActive));
+        setMaxPage(PAGE_COUNT <= 0 || data.isEmpty() ? 1 :
+                data.size() % PAGE_COUNT == 0 ?
+                        data.size() / PAGE_COUNT : data.size() / PAGE_COUNT + 1);
         changeSort();
-    }
-
-    public void sortData() {
-        switch (sort) {
-            case NEWEST -> data.sort(Comparator.comparingLong(Product::getShelfTime).reversed());
-            case OLDEST -> data.sort(Comparator.comparingLong(Product::getShelfTime));
-            case EXPENSIVE -> data.sort(Comparator.comparingDouble(Product::getPrice).reversed());
-            case CHEAPEST -> data.sort(Comparator.comparingDouble(Product::getPrice));
-        }
     }
 
     @Override
@@ -112,6 +114,21 @@ public abstract class AbstractMarketMenu extends AbstractCategoryMenu implements
     protected void clickSort() {
         this.sort = sort.next();
         changeSort();
+    }
+
+    protected void clickProduct(InventoryClickEvent event, int slot) {
+        int index = StringUtils.countMatches(getLayout().substring(0, slot), "F");
+        Product product = data.get((getPage() - 1) * PAGE_COUNT + index);
+        /* 是否为下架商品 */
+        boolean downProduct = getPlayer().getUniqueId().equals(product.getSellerUniqueId())
+                || ((getPlayer().hasPermission("magic.command.magicmarket.taken.down") || getPlayer().hasPermission("magic.command.magicmarket.all")) && event.isShiftClick() && event.isLeftClick());
+        /* 禁止播放关闭声音 */
+        setDisabledCloseSound(true);
+        if (!downProduct) {
+            new ProductDetailMenu(getPlayer(), product, this::asyncOpenMenu);
+            return;
+        }
+        getPlayer().sendMessage("没做");
     }
 
 }

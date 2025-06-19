@@ -7,7 +7,18 @@ package com.magicrealms.magicmarket.core.menu.listener;
  */
 public interface MarketMenuObserver {
 
+    /**
+     * 更改排序
+     */
     void changeSort();
 
+    /**
+     * 更改分类
+     */
     void changeCategory();
+
+    /**
+     * 更改商品
+     */
+    void changeProducts();
 }

@@ -97,10 +97,14 @@ PlayerMessage:
     ProhibitedProduct: "该物品为禁售商品"
     ProhibitedProductInContainers: "该物品容器中存在禁售商品"
     ExpensiveServiceCharge: "上架失败，服务费过于昂贵"
+    Balance: "余额不足"
+    BuyProduct: "购买失败，该商品已下架或已被购买"
   Success:
     ReloadFile: "重载文件成功"
     SellCancel: "您已取消上架该商品"
     SellProduct: "商品上架成功"
+    BuyProduct: "购买成功"
+    ProductForSale: "您的商品 %product_name%， 被玩家 %player_name% 购买，入账 %product_price%"
 ConsoleMessage:
   Error:
     NotPlayer: "此命令仅玩家可用"

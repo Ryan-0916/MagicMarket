@@ -64,6 +64,7 @@ CustomPapi:
 # H 下一页
 # I 排序
 # J 我的市场
+# K 玩家头颅
 Layout:
   - 'ABCDDDDDE'
   - 'FFFFFFFFF'
@@ -189,3 +190,7 @@ Icons:
       Name: '&E&L我的市场'
       Lore:
         - '&6&L我的市场'
+  K:
+    Display:
+      ModelData: 10000
+      Name: '%player_name%'

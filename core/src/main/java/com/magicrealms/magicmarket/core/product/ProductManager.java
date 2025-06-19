@@ -7,6 +7,7 @@ import com.magicrealms.magiclib.common.utils.StringUtil;
 import com.magicrealms.magiclib.core.MagicLib;
 import com.magicrealms.magiclib.core.menu.ConfirmMenu;
 import com.magicrealms.magiclib.core.utils.ItemUtil;
+import com.magicrealms.magicmail.api.util.PlayerInventoryUtil;
 import com.magicrealms.magicmarket.api.product.IProductManager;
 import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.api.product.ProductStatus;
@@ -107,6 +108,36 @@ public class ProductManager implements IProductManager {
         return PLUGIN.getProductRepository().queryValidProducts().stream()
                 .filter(e -> e != null && e.getStatus() == ProductStatus.ON_SALE)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void buyProduct(Player buyer, Product product) {
+        if (!MagicLib.getInstance().getVaultManager().withdrawAmount(buyer, product.getPrice())) {
+            PLUGIN.sendMessage(buyer, "PlayerMessage.Error.Balance");
+            return;
+        }
+        /* 修改物品状态 */
+        boolean success = PLUGIN.getProductRepository().buyProduct(product.getId());
+        if (!success) {
+            PLUGIN.sendMessage(buyer, "PlayerMessage.Error.BuyProduct");
+            MagicLib.getInstance().getVaultManager().depositAmount(buyer, product.getPrice());
+            return;
+        }
+        /* 发货 */
+        PlayerInventoryUtil.givePlayerItems(buyer, List.of(product.getProduct().clone()));
+        /* 给予卖家金钱 */
+        boolean depositAmount = MagicLib.getInstance().getVaultManager().depositAmount(product.getSellerUniqueId(), product.getPrice());
+        String formatPrice = FormatUtil.formatAmount(product.getPrice());
+        if (!depositAmount) {
+            PLUGIN.getLoggerManager().warning("玩家 " + product.getSellerName() +
+                    " 有一款商品被出售，但是该玩家未能正常的获取到这笔筹款，总金额：" + formatPrice);
+        }
+        PLUGIN.sendMessage(buyer, "PlayerMessage.Success.BuyProduct");
+        PLUGIN.sendBungeeMessage(product.getSellerName(), "PlayerMessage.Success.ProductForSale", Map.of(
+                "player_name", buyer.getName(),
+                "product_price", formatPrice,
+                "product_name", AdventureHelper.serializeComponent(ItemUtil.getItemName(product.getProduct())))
+        );
     }
 
 }

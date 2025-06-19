@@ -60,6 +60,8 @@ public abstract class AbstractCategoryMenu extends PageMenuHolder {
      * 初始化标签数据
      */
     protected void setUpCategoryData() {
+        CATEGORY_NAMES.clear();
+        CATEGORY_CACHE.clear();
         CATEGORY_NAMES.add("All");
         CATEGORY_CACHE.put("All", allProducts);
         ALL_CATEGORIES.forEach(category ->

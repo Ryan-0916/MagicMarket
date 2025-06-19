@@ -17,6 +17,8 @@ public class MagicMarketConstant {
     public static final String YML_BLACKLIST = "blacklist";
     public static final String YML_CATEGORY_DEF_MOBILE = "category/category.yml";
     public static final String YML_MARKET_MENU = "menu/marketMenu";
+    public static final String YML_PRODUCT_DETAIL_MENU = "menu/productDetailMenu";
+    public static final String YML_PLAYER_MARKET_MENU = "menu/playerMarketMenu";
 
     /** Redis 相关 key */
     /* 跨服通讯频道 */

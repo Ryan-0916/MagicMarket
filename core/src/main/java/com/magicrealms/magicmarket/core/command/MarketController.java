@@ -5,9 +5,17 @@ import com.magicrealms.magiclib.bukkit.command.annotations.CommandListener;
 import com.magicrealms.magiclib.bukkit.command.enums.PermissionType;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import com.magicrealms.magicmarket.core.menu.MarketMenu;
+import com.magicrealms.magicmarket.core.menu.PlayerMarketMenu;
+import com.magicrealms.magicplayer.api.MagicPlayerAPI;
+import com.magicrealms.magicplayer.api.player.PlayerData;
+import com.magicrealms.magicplayer.api.player.PlayerMenu;
+import com.magicrealms.magicplayer.api.player.click.ClickAction;
 import org.bukkit.entity.Player;
+import org.codehaus.plexus.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Ryan-0916
@@ -25,6 +33,11 @@ public class MarketController {
         new MarketMenu(sender);
     }
 
+    /**
+     * 打开个人市场：使用方法：</market me>
+     * @param sender 发送人
+     * @param args 参数类型
+     */
     @Command(text = "^Me$",
             permissionType = PermissionType.PERMISSION,
             permission = "magic.command.magicmarket.all||magic.command.magicmarket.market.me", label = "^market$")
@@ -49,5 +62,49 @@ public class MarketController {
             BukkitMagicMarket.getInstance().sendMessage(sender, "PlayerMessage.Error.ParameterError");
         }
     }
+
+    /**
+     * 打开在线玩家的市场：使用方法：</market open>
+     * @param sender 发送人
+     * @param args 参数类型
+     */
+    @Command(text = "^Open$",
+            permissionType = PermissionType.PERMISSION,
+            permission = "magic.command.magicmarket.all||magic.command.magicmarket.see", label = "^market$")
+    public void open(Player sender, String[] args){
+        List<PlayerData> data = MagicPlayerAPI.getInstance().getOnlinePlayerNames()
+                .stream()
+                .filter(name -> !StringUtils.equalsIgnoreCase(name, sender.getName()))
+                .map(name -> MagicPlayerAPI.getInstance().queryPlayerData(name))
+                .filter(Objects::nonNull)
+                .toList();
+        new PlayerMenu.Builder()
+                .leftAction(ClickAction.of("左键点击打开该玩家的全球市场",
+                        e ->
+                                new PlayerMarketMenu(e.clicker(), e.clickData())))
+                .data(data)
+                .player(sender)
+                .open();
+    }
+
+    /**
+     * 打开其他玩家的市场：使用方法：</market open PlayerName>
+     * @param sender 发送人
+     * @param args 参数类型
+     */
+    @Command(text = "^Sell\\s\\d{1,8}(\\.\\d{1,2})?$",
+            permissionType = PermissionType.PERMISSION,
+            permission = "magic.command.magicmarket.all||magic.command.magicmarket.sell", label = "^market$")
+    public void openByPlayerName(Player sender, String[] args){
+        try {
+            BukkitMagicMarket.getInstance().getProductManager().sellProduct(sender,
+                    sender.getInventory().getItemInMainHand(),
+                    new BigDecimal(args[1]));
+        } catch (Exception e) {
+            BukkitMagicMarket.getInstance().sendMessage(sender, "PlayerMessage.Error.ParameterError");
+        }
+    }
+
+
 
 }

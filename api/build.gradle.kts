@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":common"))
     compileOnly("io.papermc.paper:paper-api:${rootProject.properties["paper_version"]}-R0.1-SNAPSHOT")
     compileOnly("com.magicrealms:magiclib:${rootProject.properties["magic_lib_version"]}")
+    compileOnly("com.magicrealms:magicplayer-api:${rootProject.properties["magic_player_api_version"]}")
 }
 
 java {

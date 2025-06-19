@@ -9,6 +9,7 @@ import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.api.product.ProductStatus;
 import com.magicrealms.magicmarket.api.repository.IProductRepository;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
+import com.magicrealms.magicmarket.core.exception.BuyProductException;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.magicrealms.magicmarket.common.MagicMarketConstant.*;
@@ -36,18 +38,19 @@ public class ProductRepository extends BaseRepository<Product> implements IProdu
     @Override
     public void shellProduct(Product product) {
         super.insert(product);
-        if (getRedisStore().exists(MAGIC_MARKET_VALID_PRODUCTS)) { getRedisStore().hSetObject(MAGIC_MARKET_VALID_PRODUCTS, product.getId(), product, BukkitMagicMarket.getInstance().getConfigManager().getYmlValue(YML_CONFIG, "Cache.ValidProducts", 3600L, ParseType.LONG)); }
+        if (redisStore.exists(MAGIC_MARKET_VALID_PRODUCTS))
+        { redisStore.hSetObject(MAGIC_MARKET_VALID_PRODUCTS, product.getId(), product, BukkitMagicMarket.getInstance().getConfigManager().getYmlValue(YML_CONFIG, "Cache.ValidProducts", 3600L, ParseType.LONG)); }
     }
 
     @Override
     public List<Product> queryValidProducts() {
-        Optional<List<Product>> cachedData = getRedisStore()
+        Optional<List<Product>> cachedData = redisStore
                 .hGetAllObject(MAGIC_MARKET_VALID_PRODUCTS, Product.class);
         if (cachedData.isPresent()) {
             return cachedData.get();
         }
         List<Product> products = new ArrayList<>();
-        try (MongoCursor<Document> cursor = getMongoDBStore().find(getTableName(), Filters.or(
+        try (MongoCursor<Document> cursor = mongoDBStore.find(tableName, Filters.or(
                 Filters.eq("status", ProductStatus.ON_SALE.getValue()),
                 Filters.and(Filters.or(Filters.eq("status", ProductStatus.SELLER_REMOVAL.getValue()),
                                 Filters.eq("status", ProductStatus.SYSTEM_REMOVAL.getValue()),
@@ -65,7 +68,7 @@ public class ProductRepository extends BaseRepository<Product> implements IProdu
     }
 
     private void cacheValidProducts(List<Product> products) {
-        getRedisStore().hSetObject(MAGIC_MARKET_VALID_PRODUCTS, products.stream()
+        redisStore.hSetObject(MAGIC_MARKET_VALID_PRODUCTS, products.stream()
                 .collect(Collectors.toMap(
                         Product::getId,    // Key: Product 的 ID
                         product -> product,   // Value: Product 对象本身
@@ -73,4 +76,33 @@ public class ProductRepository extends BaseRepository<Product> implements IProdu
                         LinkedHashMap::new  // 使用 LinkedHashMap 保持顺序
                 )), BukkitMagicMarket.getInstance().getConfigManager().getYmlValue(YML_CONFIG, "Cache.ValidProducts", 3600L, ParseType.LONG));
     }
+
+
+    public boolean buyProduct(String id) {
+        Consumer<Product> consumer = e -> {
+            if (e.getStatus() != ProductStatus.ON_SALE) {
+                throw new BuyProductException("商品状态已经变更");
+            }
+            e.setStatus(ProductStatus.BE_SALE);
+        };
+        if (!super.updateById(id, consumer)) {
+            redisStore.removeKey(MAGIC_MARKET_VALID_PRODUCTS);
+            return false;
+        }
+        try {
+            if (redisStore.hExists(MAGIC_MARKET_VALID_PRODUCTS, id)) {
+                redisStore.hGetObject(MAGIC_MARKET_VALID_PRODUCTS, id, Product.class).ifPresent(
+                        product -> {
+                            consumer.accept(product);
+                            redisStore.hSetObject(MAGIC_MARKET_VALID_PRODUCTS, id, product, -1);
+                        }
+                );
+            }
+        } catch (BuyProductException e) {
+            redisStore.removeKey(MAGIC_MARKET_VALID_PRODUCTS);
+        }
+        return true;
+    }
+
+
 }

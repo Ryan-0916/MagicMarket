@@ -2,27 +2,36 @@ package com.magicrealms.magicmarket.core.menu;
 
 import com.magicrealms.magiclib.core.utils.ItemUtil;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
+import com.magicrealms.magicplayer.api.player.PlayerData;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.stream.Collectors;
+
 import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_LANGUAGE;
 import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_MARKET_MENU;
 
 /**
  * @author Ryan-0916
- * @Desc 全球市场菜单
- * @date 2025-06-12
+ * @Desc 玩家市场
+ * @date 2025-06-19
  */
-public class MarketMenu extends AbstractMarketMenu {
+@SuppressWarnings("unused")
+public class PlayerMarketMenu  extends AbstractMarketMenu {
 
-    public MarketMenu(Player player) {
-        this(player, null);
+    private final PlayerData OWNER;
+
+    public PlayerMarketMenu(Player player, PlayerData owner) {
+        this(player, owner, null);
     }
 
-    public MarketMenu(Player player, @Nullable Runnable backMenu) {
+    public PlayerMarketMenu(Player player, PlayerData owner, @Nullable Runnable backMenu) {
         super(BukkitMagicMarket.getInstance(), player,
-                BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts(),
+                BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts().stream().filter(e -> e.getSellerUniqueId().equals(owner.getUniqueId())).collect(Collectors.toList()),
                 YML_MARKET_MENU, "ABCDDDDDEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFG#####HIJ", backMenu);
+        this.OWNER = owner;
     }
 
     @Override
@@ -46,6 +55,8 @@ public class MarketMenu extends AbstractMarketMenu {
                 case 'G' -> setButtonSlot(i, !(getPage() > 1));
                 case 'H' -> setButtonSlot(i, !(getPage() < getMaxPage()));
                 case 'I' -> setItemSlot(i, sort.getItemSlot(c, getConfigPath()));
+                case 'J' -> setItemSlot(i, ItemUtil.setItemStackByConfig(OWNER.getHeadStack(),
+                        getPlugin().getConfigManager(), getConfigPath(), "Icons.K.Display", Bukkit.getOfflinePlayer(OWNER.getUniqueId())));
                 default -> setItemSlot(i);
             }
         }
@@ -71,10 +82,12 @@ public class MarketMenu extends AbstractMarketMenu {
             case 'F' -> clickProduct(event, slot);
             /* 刷新商品 */
             case 'B' -> {
-                allProducts = BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts();
+                allProducts = BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts()
+                        .stream().filter(e -> e.getSellerUniqueId().equals(OWNER.getUniqueId())).collect(Collectors.toList());
                 changeProducts();
             }
         }
     }
+
 
 }
