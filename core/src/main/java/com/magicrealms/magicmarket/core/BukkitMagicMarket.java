@@ -14,9 +14,13 @@ import com.magicrealms.magicmarket.api.MagicMarket;
 import com.magicrealms.magicmarket.api.MagicMarketAPI;
 import com.magicrealms.magicmarket.core.blacklist.BlackListManager;
 import com.magicrealms.magicmarket.core.category.CategoryManager;
+import com.magicrealms.magicmarket.core.listener.LuckPermsListener;
+import com.magicrealms.magicmarket.core.player.PlayerStallDataManager;
 import com.magicrealms.magicmarket.core.product.ProductManager;
 import com.magicrealms.magicmarket.core.repositoy.ProductRepository;
 import lombok.Getter;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -64,9 +68,26 @@ public class BukkitMagicMarket extends MagicMarket {
             setupBlacklistManager();
             /* 初始化商品管理器 */
             setupProductManager();
+            /* 初始化玩家市场信息管理器 */
+            setupStallDataManager();
             /* 初始化 API */
             setupAPI();
-        });
+            /* 权限组部分监听器 */
+            getLuckPermsAPI().ifPresent(luckPerms -> Bukkit.getPluginManager().registerEvents(new LuckPermsListener(this, luckPerms), this));
+        }, "MagicLib", "MagicPlayer", "MagicMail");
+    }
+
+    private void setupStallDataManager() {
+        this.playerStallDataManager = new PlayerStallDataManager(this);
+    }
+
+    public Optional<LuckPerms> getLuckPermsAPI() {
+        try {
+            return Optional.of(LuckPermsProvider.get());
+        } catch (Exception exception) {
+            getLoggerManager().error("获取权限组API时出现未知异常", exception);
+            return Optional.empty();
+        }
     }
 
     public void setupBlacklistManager() {
@@ -151,7 +172,8 @@ public class BukkitMagicMarket extends MagicMarket {
     @Override
     protected void loadConfig(ConfigManager configManager) {
         configManager.loadConfig(YML_CONFIG, YML_LANGUAGE,
-                YML_MONGODB, YML_REDIS, YML_BLACKLIST, YML_MARKET_MENU, YML_PRODUCT_DETAIL_MENU, YML_PLAYER_MARKET_MENU);
+                YML_MONGODB, YML_REDIS, YML_BLACKLIST, YML_MARKET_MENU, YML_PRODUCT_DETAIL_MENU,
+                YML_PLAYER_MARKET_MENU, YML_FIND_PRODUCT_MENU, YML_MY_MARKET_MENU);
     }
 
     @Override

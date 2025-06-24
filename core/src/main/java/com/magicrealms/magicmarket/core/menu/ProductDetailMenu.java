@@ -10,7 +10,7 @@ import com.magicrealms.magicmarket.api.MagicMarket;
 import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import com.magicrealms.magicmarket.core.menu.enums.MarketSort;
-import com.magicrealms.magicmarket.core.menu.listener.ProductDetailObserver;
+import com.magicrealms.magicmarket.core.menu.listener.ProductDetailMenuObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -31,7 +31,7 @@ import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_PRODUCT
  * 显示该物品全部在售的商品
  * @date 2025-06-18
  */
-public class ProductDetailMenu extends PageMenuHolder implements ProductDetailObserver {
+public class ProductDetailMenu extends PageMenuHolder implements ProductDetailMenuObserver {
 
     private final Product DATA;
     private List<Product> marketItems;
@@ -161,6 +161,8 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailOb
                 this.sufficientAmount = MagicLib.getInstance().getVaultManager().sufficientAmount(getPlayer(), DATA.getPrice());
                 changeProducts();
             }
+            /* 我的市场 */
+            case 'I' -> new MyMarketMenu(getPlayer(), this::asyncOpenMenu);
         }
     }
 
@@ -173,6 +175,7 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailOb
                 .open();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void clickProduct(InventoryClickEvent event, int slot) {
         int index = StringUtils.countMatches(getLayout().substring(0, slot), "E");
         Product product = activeItems.get((getPage() - 1) * PAGE_COUNT + index);
@@ -190,7 +193,8 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailOb
             return;
         }
         /* 下架商品 */
-        getPlayer().sendMessage("没做");
+        BukkitMagicMarket.getInstance().getProductManager()
+                .removeProduct(getPlayer(), product, this::asyncOpenMenu, this::asyncCloseMenu, this::asyncCloseMenu);
     }
 
     @Override

@@ -6,6 +6,7 @@ Category:
 
 Cache:
   ValidProducts: 3600
+  PlayerStallData: 3600
 
 Settings:
   # 服务费，它是比率
@@ -13,6 +14,23 @@ Settings:
   SellTax: 0
   # 有效期天数，上架天数
   ShelfLife: 7
+  # 上架数量
+  SellNumber:
+    # 最大上架数量
+    Max: 50
+    # 购买
+    Buy:
+      # 首次购买
+      First: 500
+      # 之后每次购买增量
+      Growth: 500
+      # Max 最买的最大金额不可超过
+      Max: 20000
+      # 确认解锁上架数量时的预览物品
+      Display:
+        Mats: PAPER
+        ModelData: 10000
+        Name: '&E&L是否确认支付 %amount% 购买可上架数量'
   # 商品 Lore
   ProductLore:
     # 默认显示的 Lore
@@ -46,3 +64,14 @@ Settings:
     # 玩家 下架时显示的 Lore
     SelfSoldOut:
       - '手动下架将不会退还服务费'
+  # Open 玩家市场 Lore
+  OpenPlayerMarketLore: '左键查看玩家市场'
+  # Mail Format
+  MailFormat:
+    Removal:
+      Self:
+        Subject: '环球市场商品下架'
+        Content: '商品已经被你下架，系统自动发放至您的邮箱'
+      Admin:
+        Subject: '环球市场商品下架'
+        Content: '商品已经被管理员%removal_name%下架，系统自动发放至您的邮箱。理由：%removal_reasons%'

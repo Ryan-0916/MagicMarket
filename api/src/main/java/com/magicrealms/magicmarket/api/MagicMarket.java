@@ -5,6 +5,7 @@ import com.magicrealms.magiclib.common.store.MongoDBStore;
 import com.magicrealms.magiclib.common.store.RedisStore;
 import com.magicrealms.magicmarket.api.blacklist.IBlackListManager;
 import com.magicrealms.magicmarket.api.category.ICategoryManager;
+import com.magicrealms.magicmarket.api.stall.IPlayerStallDataManager;
 import com.magicrealms.magicmarket.api.product.IProductManager;
 import com.magicrealms.magicmarket.api.repository.IProductRepository;
 import lombok.Getter;
@@ -42,6 +43,9 @@ public abstract class MagicMarket extends MagicRealmsPlugin {
 
     @Getter
     protected IBlackListManager blacklistManager;
+
+    @Getter
+    protected IPlayerStallDataManager playerStallDataManager;
 
     public abstract void sendMessage(CommandSender sender, String languageKey);
 

@@ -10,6 +10,7 @@ dependencies {
     compileOnly("com.magicrealms:magicmail-api:${rootProject.properties["magic_mail_api_version"]}")
     compileOnly("com.magicrealms:magiclib:${rootProject.properties["magic_lib_version"]}")
     compileOnly("me.clip:placeholderapi:${rootProject.properties["placeholder_version"]}")
+    compileOnly("net.luckperms:api:5.4")
 }
 
 java {

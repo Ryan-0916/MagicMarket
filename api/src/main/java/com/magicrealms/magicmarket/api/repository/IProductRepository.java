@@ -4,6 +4,7 @@ import com.magicrealms.magiclib.common.repository.IBaseRepository;
 import com.magicrealms.magicmarket.api.product.Product;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Ryan-0916
@@ -13,18 +14,17 @@ import java.util.List;
 public interface IProductRepository extends IBaseRepository<Product> {
 
     /**
-     * 上架商品至全球市场
-     * @param product 商品
+     * 查询在售商品列表
+     * @return 查询市场内所有在售商品
      */
-    void shellProduct(Product product);
+    List<Product> queryOnSaleProducts();
 
     /**
-     * 查询全球市场内所有有效商品
-     * 有效判断逻辑：在售商品，已下架但未退还至玩家背包中的商品
-     * @return 商品列表
+     * 修改商品
+     * @param id 商品编号
+     * @param consumer 修改内容
+     * @param removeCache 是否移除缓存
+     * @return 修改成功 / 失败
      */
-    List<Product> queryValidProducts();
-
-    boolean buyProduct(String id);
-
+    boolean update(String id, Consumer<Product> consumer, boolean removeCache);
 }

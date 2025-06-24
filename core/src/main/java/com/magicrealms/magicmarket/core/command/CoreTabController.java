@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class CoreTabController {
 
     private static final Supplier<Stream<String>> fileNames
-            = () -> Stream.of("all", "config", "language", "redis", "mongodb", "blacklist", "marketMenu", "productDetailMenu", "playerMarketMenu");
+            = () -> Stream.of("all", "config", "language", "redis", "mongodb", "blacklist", "marketMenu", "productDetailMenu", "playerMarketMenu", "findProductMenu", "myMarketMenu");
 
     @TabComplete(text = "^\\s?$", permissionType = PermissionType.CONSOLE_OR_PERMISSION,
             permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")

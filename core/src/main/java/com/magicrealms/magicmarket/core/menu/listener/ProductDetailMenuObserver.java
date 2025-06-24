@@ -5,7 +5,7 @@ package com.magicrealms.magicmarket.core.menu.listener;
  * @Desc 物品详情菜单观察者
  * @date 2025-06-18
  */
-public interface ProductDetailObserver {
+public interface ProductDetailMenuObserver {
 
     void changeSort();
 

@@ -18,8 +18,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -38,6 +44,7 @@ import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_CONFIG;
 @Builder(builderClassName = "ProductBuilder", toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@SuppressWarnings("unused")
 public class Product {
     /* 商品编号 */
     @MongoField(id = @FieldId(enable = true))
@@ -66,9 +73,6 @@ public class Product {
     /* 上架天数 */
     @MongoField
     private int shelfLife;
-    /* 商品已返还 */
-    @MongoField
-    private boolean alreadyReturn;
     /* 下架者名称 */
     @MongoField
     private String removalName;
@@ -90,10 +94,6 @@ public class Product {
                 .shelfTime(System.currentTimeMillis());
     }
 
-    public double getDoublePrice() {
-        return price.doubleValue();
-    }
-
     /**
      * 获取商品过期时间的时间戳（毫秒）
      * @return 过期时间的时间戳，如果 shelfLife <= 0 则返回 Long.MAX_VALUE 表示永不过期
@@ -111,6 +111,50 @@ public class Product {
      */
     public boolean isExpired() {
         return shelfLife > 0 && System.currentTimeMillis() > getExpirationTime();
+    }
+
+    /**
+     * 获取 默认 Lore 的商品。
+     * @return 返回处理后的商品
+     */
+    public ItemStack getDefaultLoreProduct() {
+        List<Component> lore = processLoreLines(getYmlProductLore("Default"), createDefaultPlaceholders());
+        return buildItemWithLore(getProduct(), lore);
+    }
+
+    /**
+     * 获取商品 - 显示在菜单中的商品。会根据玩家的权限身份处理不同的 Lore
+     * @param player 玩家
+     * @return 返回处理后的商品
+     */
+    public ItemStack getMenuProduct(Player player) {
+        Map<String, String> placeholders = createDefaultPlaceholders();
+        List<Component> lore = processLoreLines(getYmlProductLore("Default"), placeholders);
+        if (sellerUniqueId.equals(player.getUniqueId())) {
+            if (status == ProductStatus.ON_SALE) {
+                lore.addAll(processLoreLines(getYmlProductLore("Self.OnSale"), null));
+            } else {
+                Map<String, String> takenDownPlaceholders = new HashMap<>();
+                takenDownPlaceholders.put("removal_name", removalName);
+                takenDownPlaceholders.put("removal_reasons", removalReasons);
+                lore.addAll(processLoreLines(getYmlProductLore("Self.TakenDown"), takenDownPlaceholders));
+            }
+            return buildItemWithLore(getProduct(), lore);
+        }
+        lore.addAll(processLoreLines(getYmlProductLore("Player"), null));
+        if (player.hasPermission("magic.command.magicmarket.taken.down") ||
+                player.hasPermission("magic.command.magicmarket.all")) {
+            lore.addAll(processLoreLines(getYmlProductLore("Op"), null));
+        }
+        return buildItemWithLore(getProduct(), lore);
+    }
+
+    /**
+     * 获取商品类型
+     * @return 商品名称::CustomModelData
+     */
+    public String getType() {
+        return product.getType().name() + "::" + (product.hasItemMeta() && product.getItemMeta().hasCustomModelData() ? product.getItemMeta().getCustomModelData() : "0");
     }
 
     private List<String> getYmlProductLore(String key) {
@@ -144,38 +188,16 @@ public class Product {
         Optional.ofNullable(item.lore()).ifPresent(lore::addAll);
         lore.addAll(additionalLore);
         item.lore(lore);
+        item.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        ItemMeta meta = item.getItemMeta();
+        if (!item.getItemMeta().hasAttributeModifiers()) {
+            NamespacedKey key = new NamespacedKey(MagicMarket.getInstance(), "dummy_attribute");
+            AttributeModifier dummyModifier = new AttributeModifier(
+                    key, 0.0, AttributeModifier.Operation.ADD_NUMBER
+            );
+            meta.addAttributeModifier(Attribute.LUCK, dummyModifier);
+        }
         return item;
-    }
-
-    public ItemStack getDefaultLoreProduct() {
-        List<Component> lore = processLoreLines(getYmlProductLore("Default"), createDefaultPlaceholders());
-        return buildItemWithLore(getProduct(), lore);
-    }
-
-    public ItemStack getMenuProduct(Player player) {
-        Map<String, String> placeholders = createDefaultPlaceholders();
-        List<Component> lore = processLoreLines(getYmlProductLore("Default"), placeholders);
-        if (sellerUniqueId.equals(player.getUniqueId())) {
-            if (status == ProductStatus.ON_SALE) {
-                lore.addAll(processLoreLines(getYmlProductLore("Self.OnSale"), null));
-            } else {
-                Map<String, String> takenDownPlaceholders = new HashMap<>();
-                takenDownPlaceholders.put("removal_name", removalName);
-                takenDownPlaceholders.put("removal_reasons", removalReasons);
-                lore.addAll(processLoreLines(getYmlProductLore("Self.TakenDown"), takenDownPlaceholders));
-            }
-            return buildItemWithLore(getProduct(), lore);
-        }
-        lore.addAll(processLoreLines(getYmlProductLore("Player"), null));
-        if (player.hasPermission("magic.command.magicmarket.taken.down") ||
-                player.hasPermission("magic.command.magicmarket.all")) {
-            lore.addAll(processLoreLines(getYmlProductLore("Op"), null));
-        }
-        return buildItemWithLore(getProduct(), lore);
-    }
-
-    public String getType() {
-        return product.getType().name() + "::" + (product.getItemMeta().hasCustomModelData() ? product.getItemMeta().getCustomModelData() : "0");
     }
 
 }

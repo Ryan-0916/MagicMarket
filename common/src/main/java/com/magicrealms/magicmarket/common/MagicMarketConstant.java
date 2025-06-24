@@ -19,12 +19,18 @@ public class MagicMarketConstant {
     public static final String YML_MARKET_MENU = "menu/marketMenu";
     public static final String YML_PRODUCT_DETAIL_MENU = "menu/productDetailMenu";
     public static final String YML_PLAYER_MARKET_MENU = "menu/playerMarketMenu";
+    public static final String YML_FIND_PRODUCT_MENU = "menu/findProductMenu";
+    public static final String YML_MY_MARKET_MENU = "menu/myMarketMenu";
 
     /** Redis 相关 key */
     /* 跨服通讯频道 */
     public static final String BUNGEE_CHANNEL = "BUNGEE_CHANNEL_MAGIC_MARKET";
     /* 在售商品 */
-    public static final String MAGIC_MARKET_VALID_PRODUCTS = "MAGIC_MARKET_VALID_PRODUCTS";
+    public static final String MAGIC_MARKET_ON_SALE_PRODUCTS = "MAGIC_MARKET_ON_SALE_PRODUCTS";
+    /* 玩家市场信息 */
+    public static final String MAGIC_MARKET_PLAYER_MARKET_DATA = "MAGIC_MARKET_PLAYER_MARKET_DATA";
+
+    public static final String MAGIC_MARKET_PURCHASE_STALL_LOCK = "MAGIC_MARKET_PURCHASE_STALL_LOCK_%s";
 
     /** MongoDB部分常量 */
     /* 全球市场商品表 */

@@ -23,6 +23,7 @@ public class MarketMenu extends AbstractMarketMenu {
         super(BukkitMagicMarket.getInstance(), player,
                 BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts(),
                 YML_MARKET_MENU, "ABCDDDDDEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFG#####HIJ", backMenu);
+        asyncOpenMenu();
     }
 
     @Override
@@ -74,6 +75,7 @@ public class MarketMenu extends AbstractMarketMenu {
                 allProducts = BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts();
                 changeProducts();
             }
+            case 'J' -> new MyMarketMenu(getPlayer(), this::asyncOpenMenu);
         }
     }
 

@@ -60,8 +60,8 @@ public enum MarketSort {
         switch (this) {
             case NEWEST -> data.sort(Comparator.comparingLong(Product::getShelfTime).reversed());
             case OLDEST -> data.sort(Comparator.comparingLong(Product::getShelfTime));
-            case EXPENSIVE -> data.sort(Comparator.comparingDouble(Product::getDoublePrice).reversed());
-            case CHEAPEST -> data.sort(Comparator.comparingDouble(Product::getDoublePrice));
+            case EXPENSIVE -> data.sort(Comparator.comparing(Product::getPrice).reversed());
+            case CHEAPEST -> data.sort(Comparator.comparing(Product::getPrice));
         }
     }
 }

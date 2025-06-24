@@ -36,7 +36,6 @@ public abstract class AbstractMarketMenu extends AbstractCategoryMenu implements
         setMaxPage(PAGE_COUNT <= 0 || data.isEmpty() ? 1 :
                 data.size() % PAGE_COUNT == 0 ?
                         data.size() / PAGE_COUNT : data.size() / PAGE_COUNT + 1);
-        asyncOpenMenu();
     }
 
 
@@ -128,7 +127,9 @@ public abstract class AbstractMarketMenu extends AbstractCategoryMenu implements
             new ProductDetailMenu(getPlayer(), product, this::asyncOpenMenu);
             return;
         }
-        getPlayer().sendMessage("没做");
+        /* 下架商品 */
+        BukkitMagicMarket.getInstance().getProductManager()
+                .removeProduct(getPlayer(), product, this::asyncOpenMenu, this::asyncCloseMenu, this::asyncCloseMenu);
     }
 
 }

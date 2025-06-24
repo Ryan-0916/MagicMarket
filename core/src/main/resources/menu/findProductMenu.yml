@@ -1,6 +1,6 @@
 Title:
   Background:
-    Text: '%owner_name%的市场'
+    Text: '商品查找菜单'
   Page:
     Text: '%page%'
     Left: true
@@ -11,26 +11,10 @@ Title:
     Right: true
   BackMenu:
     Text: '%back_menu%'
-  SelectedCategory:
-    Text: '%selected_category_N%'
   Sort:
     Text: '%sort%'
-
-Category:
-  All:
-    Display:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L全部'
-      Lore:
-        - '&6&L全部'
-  Others:
-    Display:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L其他'
-      Lore:
-        - '&6&L其他'
+  Prompt:
+    Text: '%prompt%'
 
 CustomPapi:
   BackMenu:
@@ -47,31 +31,27 @@ CustomPapi:
     Oldest: '即将过期'
     Expensive: '最昂贵'
     Cheapest: '最廉价'
-  # N 为你每页的分类个数 1 - N 例如你每页有 4个分页个数则为 1-4
-  SelectedCategory_N:
-    Enable: '选中'
-    UnEnable: '未选择'
-
+  Prompt:
+    Default: '市场找到了相同的物品'
+    Empty: "请将您需要查找的物品放入上方物品栏"
+    InsufficientAmount: '点击的物品因余额不足无法购买'
 
 # # 默认材质
 # A 返回 / 关闭
 # B 刷新
-# C 分类上一页
-# D 分类
-# E 分类下一页
-# F 商品
-# G 上一页
-# H 下一页
-# I 排序
-# J 玩家头颅
-# K 我的市场
+# C 查找的物品
+# D 物品
+# E 上一页
+# F 下一页
+# G 排序
+# H 我的市场
 Layout:
-  - 'ABCDDDDDE'
-  - 'FFFFFFFFF'
-  - 'FFFFFFFFF'
-  - 'FFFFFFFFF'
-  - 'FFFFFFFFF'
-  - 'G#####HIJ'
+  - 'AB###C###'
+  - 'DDDDDDDDD'
+  - 'DDDDDDDDD'
+  - 'DDDDDDDDD'
+  - 'DDDDDDDDD'
+  - 'E#####FGH'
 
 Icons:
   A:
@@ -94,59 +74,33 @@ Icons:
       Name: '&E&L刷新'
       Lore:
         - '&6&L刷新'
-  C:
-    ActiveDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L上一个分类'
-      Lore:
-        - '&6&L上一个分类'
-    DisabledDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L上一个分类'
-      Lore:
-        - '&6&L上一个分类'
   E:
     ActiveDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L下一个分类'
+      Name: '&E&L上一页'
       Lore:
-        - '&6&L下一个分类'
+        - '&6&L上一页'
     DisabledDisplay:
       Mats: PAPER
       ModelData: 10000
-      Name: '&E&L下一个分类'
+      Name: '&E&L上一页'
       Lore:
-        - '&6&L下一个分类'
+        - '&6&L上一页'
+  F:
+    ActiveDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L下一页'
+      Lore:
+        - '&6&L下一页'
+    DisabledDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L下一页'
+      Lore:
+        - '&6&L下一页'
   G:
-    ActiveDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L上一页'
-      Lore:
-        - '&6&L上一页'
-    DisabledDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L上一页'
-      Lore:
-        - '&6&L上一页'
-  H:
-    ActiveDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L下一页'
-      Lore:
-        - '&6&L下一页'
-    DisabledDisplay:
-      Mats: PAPER
-      ModelData: 10000
-      Name: '&E&L下一页'
-      Lore:
-        - '&6&L下一页'
-  I:
     NewestDisplay:
       Mats: PAPER
       ModelData: 10000
@@ -183,14 +137,10 @@ Icons:
         - '&6&L即将到期'
         - '&6&L价格降序'
         - '&6&L价格升序'
-  J:
+  H:
     Display:
       Mats: PAPER
       ModelData: 10000
       Name: '&E&L我的市场'
       Lore:
         - '&6&L我的市场'
-  K:
-    Display:
-      ModelData: 10000
-      Name: '%owner_name%'

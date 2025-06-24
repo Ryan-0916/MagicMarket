@@ -8,10 +8,12 @@ import org.bukkit.inventory.ItemStack;
  * @date 2025-06-12
  */
 public interface IBlackListManager {
+
     /**
      * 该物品是否存在于黑名单内
      * @param item 物品
      * @return 是否存在于黑名单内
      */
     boolean containsItem(ItemStack item);
+
 }

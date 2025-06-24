@@ -3,15 +3,14 @@ package com.magicrealms.magicmarket.core.menu;
 import com.magicrealms.magiclib.core.utils.ItemUtil;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import com.magicrealms.magicplayer.api.player.PlayerData;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_LANGUAGE;
-import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_MARKET_MENU;
+import static com.magicrealms.magicmarket.common.MagicMarketConstant.*;
 
 /**
  * @author Ryan-0916
@@ -30,8 +29,9 @@ public class PlayerMarketMenu  extends AbstractMarketMenu {
     public PlayerMarketMenu(Player player, PlayerData owner, @Nullable Runnable backMenu) {
         super(BukkitMagicMarket.getInstance(), player,
                 BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts().stream().filter(e -> e.getSellerUniqueId().equals(owner.getUniqueId())).collect(Collectors.toList()),
-                YML_MARKET_MENU, "ABCDDDDDEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFG#####HIJ", backMenu);
+                YML_PLAYER_MARKET_MENU, "ABCDDDDDEFFFFFFFFFFFFFFFFFFFFFFFFFFFG#####HIJ", backMenu);
         this.OWNER = owner;
+        asyncOpenMenu();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class PlayerMarketMenu  extends AbstractMarketMenu {
                 case 'H' -> setButtonSlot(i, !(getPage() < getMaxPage()));
                 case 'I' -> setItemSlot(i, sort.getItemSlot(c, getConfigPath()));
                 case 'J' -> setItemSlot(i, ItemUtil.setItemStackByConfig(OWNER.getHeadStack(),
-                        getPlugin().getConfigManager(), getConfigPath(), "Icons.K.Display", Bukkit.getOfflinePlayer(OWNER.getUniqueId())));
+                        getPlugin().getConfigManager(), getConfigPath(), "Icons.K.Display", Map.of("owner_name", OWNER.getName())));
                 default -> setItemSlot(i);
             }
         }
@@ -86,7 +86,14 @@ public class PlayerMarketMenu  extends AbstractMarketMenu {
                         .stream().filter(e -> e.getSellerUniqueId().equals(OWNER.getUniqueId())).collect(Collectors.toList());
                 changeProducts();
             }
+            case 'K' -> new MyMarketMenu(getPlayer(), this::asyncOpenMenu);
         }
+    }
+
+    public Map<String, String> createPlaceholders() {
+        Map<String, String> map = super.createPlaceholders();
+        map.put("owner_name", OWNER.getName());
+        return map;
     }
 
 

@@ -1,11 +1,16 @@
 package com.magicrealms.magicmarket.api.category;
 
 import com.magicrealms.magiclib.common.utils.Pair;
+import com.magicrealms.magiclib.core.utils.ItemUtil;
 import lombok.Builder;
 import lombok.Getter;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Ryan-0916
@@ -14,6 +19,7 @@ import java.util.List;
  */
 @Builder
 @Getter
+@SuppressWarnings("unused")
 public class Category {
 
     /* 文件路径 */
@@ -38,6 +44,23 @@ public class Category {
                 pair.first().equalsIgnoreCase(item.getType().name()) &&
                         pair.second() == (item.getItemMeta().hasCustomModelData() ?
                                 item.getItemMeta().getCustomModelData() : 0));
+    }
+
+    /**
+     * 获取该分类中的全部物品
+     * @return 该分类中的全部物品
+     */
+    public List<ItemStack> getCategoryItems() {
+        return items.stream().map(pair -> {
+            Material material = Material.getMaterial(pair.first());
+            if (material == null) { return null; }
+            ItemStack item = new ItemStack(material);
+            if (ItemUtil.isAirOrNull(item)) { return null; }
+            ItemMeta meta = item.getItemMeta();
+            meta.setCustomModelData(pair.second());
+            item.setItemMeta(meta);
+            return item;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

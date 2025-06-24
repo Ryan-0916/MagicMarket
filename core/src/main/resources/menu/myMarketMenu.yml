@@ -64,7 +64,7 @@ CustomPapi:
 # H 下一页
 # I 排序
 # J 玩家头颅
-# K 我的市场
+
 Layout:
   - 'ABCDDDDDE'
   - 'FFFFFFFFF'
@@ -120,6 +120,28 @@ Icons:
       Name: '&E&L下一个分类'
       Lore:
         - '&6&L下一个分类'
+  F:
+    UnlockDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L已解锁'
+      Lore:
+        - '手持物品执行指令/mk sell <价格>'
+        - '用于上架商品'
+    LockDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L未解锁'
+      Lore:
+        - '未解锁'
+        - '解锁金额: %amount%'
+        - '左键 解锁'
+    DisabledLockDisplay:
+      Mats: PAPER
+      ModelData: 10000
+      Name: '&E&L禁止解锁'
+      Lore:
+        - '已达您可解锁的最大上限'
   G:
     ActiveDisplay:
       Mats: PAPER
@@ -185,12 +207,5 @@ Icons:
         - '&6&L价格升序'
   J:
     Display:
-      Mats: PAPER
       ModelData: 10000
-      Name: '&E&L我的市场'
-      Lore:
-        - '&6&L我的市场'
-  K:
-    Display:
-      ModelData: 10000
-      Name: '%owner_name%'
+      Name: '%player_name%'
