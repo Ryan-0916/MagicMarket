@@ -24,6 +24,12 @@ public class LuckPermsListener implements Listener {
         eventBus.subscribe(plugin, NodeMutateEvent.class, this::onNodeMutateEvent);
     }
 
+    /**
+     * 权限节点变更事件
+     * 当权限节点变更时，考虑到可能受影响的条数包含摊位信息。因此需要移除摊位信息的缓存
+     * TODO: 需要具体判断权限节点内容。以免不必要的性能耗损
+     * @param event 权限节点变更事件
+     */
     private void onNodeMutateEvent(NodeMutateEvent event) {
         Bukkit.getScheduler().runTask(PLUGIN, () -> PLUGIN.getRedisStore().removeKey(MAGIC_MARKET_PLAYER_MARKET_DATA));
     }

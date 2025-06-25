@@ -10,4 +10,5 @@ public interface ProductDetailMenuObserver {
     void changeSort();
 
     void changeProducts();
+
 }

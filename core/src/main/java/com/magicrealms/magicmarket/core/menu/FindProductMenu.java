@@ -4,10 +4,8 @@ import com.magicrealms.magiclib.common.enums.ParseType;
 import com.magicrealms.magiclib.common.utils.StringUtil;
 import com.magicrealms.magiclib.core.MagicLib;
 import com.magicrealms.magiclib.core.holder.PageMenuHolder;
-import com.magicrealms.magiclib.core.menu.ConfirmMenu;
 import com.magicrealms.magiclib.core.utils.ItemUtil;
 import com.magicrealms.magicmail.api.util.PlayerInventoryUtil;
-import com.magicrealms.magicmarket.api.MagicMarket;
 import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import com.magicrealms.magicmarket.core.menu.enums.MarketSort;
@@ -37,10 +35,10 @@ import static com.magicrealms.magicmarket.common.MagicMarketConstant.YML_LANGUAG
  */
 public class FindProductMenu extends PageMenuHolder implements FindProductMenuObserver {
 
-    /* 全部商品 */
+    /* 全部商品，环球市场内所有的商品 */
     private List<Product> allProducts;
 
-    /* 有效商品 */
+    /* 有效商品，与查找商品类型一致的商品 */
     private List<Product> activeProducts;
 
     /* 排序 */
@@ -68,15 +66,17 @@ public class FindProductMenu extends PageMenuHolder implements FindProductMenuOb
     public FindProductMenu(Player player, @Nullable ItemStack itemStack, @Nullable Runnable backMenu) {
         super(BukkitMagicMarket.getInstance(), player, YML_FIND_PRODUCT_MENU,
                 "AB###C###DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDE#####FGH", false, true, backMenu);
+        /* 处理物品信息 */
         this.searchItem = ItemUtil.isAirOrNull(itemStack) ? ItemUtil.AIR : itemStack;
         this.searchType = ItemUtil.isAirOrNull(itemStack) ? "AIR::0" : searchItem.getType().name() + "::" + (searchItem.getItemMeta().hasCustomModelData() ? searchItem.getItemMeta().getCustomModelData() : "0");
         this.allProducts = BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts();
-        this.activeProducts = allProducts.stream().filter(e -> StringUtils.equals(e.getType(), searchType))
-                .collect(Collectors.toList());
+        this.activeProducts = allProducts.stream().filter(e -> StringUtils.equals(e.getType(), searchType)).collect(Collectors.toList());
         sort.sort(activeProducts);
+        /* 处理提示信息 */
         this.prompt = ItemUtil.isAirOrNull(searchItem) ?
                 getConfigValue("CustomPapi.Prompt.Empty", "", ParseType.STRING):
                 getConfigValue("CustomPapi.Prompt.Default", "", ParseType.STRING);
+        /* 处理页数信息 */
         this.PAGE_COUNT = StringUtils.countMatches(getLayout(), "D");
         setMaxPage(PAGE_COUNT <= 0 || activeProducts.isEmpty() ? 1 :
                 activeProducts.size() % PAGE_COUNT == 0 ?
@@ -168,6 +168,7 @@ public class FindProductMenu extends PageMenuHolder implements FindProductMenuOb
     @Override
     public void closeEvent(InventoryCloseEvent e) {
         super.closeEvent(e);
+        /* 当主动关闭菜单，并且搜索物品不为空或空气时 */
         if (this.manualClose && ItemUtil.isNotAirOrNull(searchItem)) {
             /* 检索区物品退还逻辑 */
             PlayerInventoryUtil.givePlayerItems(super.getPlayer(), List.of(searchItem));
@@ -208,11 +209,14 @@ public class FindProductMenu extends PageMenuHolder implements FindProductMenuOb
                 this.allProducts = BukkitMagicMarket.getInstance().getProductManager().queryOnSaleProducts();
                 changeProducts();
             }
-            /* C */
+            /* 更换检索内容 */
             case 'C' -> Bukkit.getScheduler().runTask(getPlugin(), () -> {
                 searchItem = getInventory().getItem(slot);
                 changeSearch();
             });
+            /* 打开我的菜单
+             * TODO: 可能存在刷物品的风险
+             */
             case 'H' -> new MyMarketMenu(getPlayer(), this::asyncOpenMenu);
         }
     }
@@ -222,50 +226,45 @@ public class FindProductMenu extends PageMenuHolder implements FindProductMenuOb
         event.setCancelled(true);
     }
 
-    @SuppressWarnings("DuplicatedCode")
+    /**
+     * 点击商品，处理逻辑
+     * @param event 点击事件
+     * @param slot 点击槽位
+     */
     private void clickProduct(InventoryClickEvent event, int slot) {
-        if (ItemUtil.isAirOrNull(event.getCurrentItem())) {
-            return;
-        }
+        /* 如果点击的物品为空 */
+        if (ItemUtil.isAirOrNull(event.getCurrentItem())) { return; }
+        /* 获取点击的商品 */
         int index = StringUtils.countMatches(getLayout().substring(0, slot), "D");
         Product product = activeProducts.get((getPage() - 1) * PAGE_COUNT + index);
         /* 是否为下架商品 */
         boolean downProduct = getPlayer().getUniqueId().equals(product.getSellerUniqueId())
-                || ((getPlayer().hasPermission("magic.command.magicmarket.taken.down") || getPlayer().hasPermission("magic.command.magicmarket.all")) && event.isShiftClick() && event.isLeftClick());
+                || ((getPlayer().hasPermission("magic.command.magicmarket.taken.down")
+                || getPlayer().hasPermission("magic.command.magicmarket.all"))
+                && event.isShiftClick() && event.isLeftClick());
         if (!downProduct) {
             /* 购买商品 */
             if (MagicLib.getInstance().getVaultManager().sufficientAmount(getPlayer(), product.getPrice())) {
-                buyProduct(product);
+                setDisabledCloseSound(true);
+                this.manualClose = false;
+                /* 不论成功与否，都需要将商品返还给用户 */
+                Runnable task = () -> PlayerInventoryUtil.givePlayerItems(getPlayer(), List.of(searchItem));
+                BukkitMagicMarket.getInstance().getProductManager().buyProduct(getPlayer(), product, () -> Bukkit.getScheduler().runTask(getPlugin(), () -> {
+                    if (getPlayer().isOnline()) {
+                        asyncOpenMenu();
+                        return;
+                    }
+                    PlayerInventoryUtil.givePlayerItems(getPlayer(), List.of(searchItem));
+                }), task , task);
                 return;
             }
             this.prompt = getConfigValue("CustomPapi.Prompt.InsufficientAmount", "", ParseType.STRING);
             asyncUpdateTitle();
             return;
         }
-        /* 下架商品 */
-        getPlayer().sendMessage("没做");
+
+        /* 下架操作 */
+
+
     }
-
-    private void buyProduct(Product product) {
-        setDisabledCloseSound(true);
-        this.manualClose = false;
-        new ConfirmMenu.Builder().player(getPlayer())
-                .itemStack(product.getDefaultLoreProduct())
-                .cancelOrCloseTask(() -> Bukkit.getScheduler().runTask(getPlugin(), () -> {
-                    if (getPlayer().isOnline()) {
-                        asyncOpenMenu();
-                        return;
-                    }
-                    PlayerInventoryUtil.givePlayerItems(getPlayer(), List.of(searchItem));
-                }))
-                .confirmTask(() -> {
-                    MagicMarket.getInstance().getProductManager().buyProduct(getPlayer(), product);
-                    PlayerInventoryUtil.givePlayerItems(getPlayer(), List.of(searchItem));
-                })
-                .open();
-    }
-
-
-
-
 }

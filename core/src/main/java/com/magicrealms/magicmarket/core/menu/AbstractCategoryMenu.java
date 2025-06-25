@@ -132,4 +132,5 @@ public abstract class AbstractCategoryMenu extends PageMenuHolder {
         }
         return false;
     }
+
 }

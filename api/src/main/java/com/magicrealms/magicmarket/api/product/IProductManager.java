@@ -28,15 +28,22 @@ public interface IProductManager {
     void sellProduct(Player seller, ItemStack product, BigDecimal price);
 
     /**
-     * 购买商品
+     * 进入购买环节，该环节是一个操作环节
      * @param buyer 买家
      * @param product 商品
+     * @param cancelTask 操作取消
+     * @param errorTask 操作失败
+     * @param successTask 操作成功
      */
-    void buyProduct(Player buyer, Product product);
+    void buyProduct(Player buyer, Product product, Runnable cancelTask, Runnable errorTask, Runnable successTask);
 
     /**
-     * 从市场上将商品移除
+     * 进入下架环境，该环节是一个操作环节
      * @param remover 移除者
+     * @param product 商品
+     * @param cancelTask 操作取消
+     * @param errorTask 操作失败
+     * @param successTask 操作成功
      */
     void removeProduct(Player remover, Product product, Runnable cancelTask, Runnable errorTask, Runnable successTask);
 

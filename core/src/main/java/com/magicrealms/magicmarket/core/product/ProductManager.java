@@ -18,7 +18,7 @@ import com.magicrealms.magicmarket.api.product.IProductManager;
 import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.api.product.ProductStatus;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
-import com.magicrealms.magicmarket.core.exception.BuyProductException;
+import com.magicrealms.magicmarket.core.exception.ProductStatusException;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Material;
@@ -123,40 +123,48 @@ public class ProductManager implements IProductManager {
     }
 
     @Override
-    public void buyProduct(Player buyer, Product product) {
-        /* 玩家的余额无法购买该商品时 */
-        if (!MagicLib.getInstance().getVaultManager().withdrawAmount(buyer, product.getPrice())) {
-            PLUGIN.sendMessage(buyer, "PlayerMessage.Error.BuyProductInsufficientBalance");
-            return;
-        }
-        /* 修改数据缓存中的状态 */
-        boolean success = PLUGIN.getProductRepository().update(product.getId(), e -> {
-            if (e.getStatus() != ProductStatus.ON_SALE) { throw new BuyProductException("购买失败，商品已经不在市场内"); }
-            e.setStatus(ProductStatus.BE_SALE);
-        }, true);
-        if (!success) {
-            PLUGIN.sendMessage(buyer, "PlayerMessage.Error.ProductStatusChange");
-            /* 此步骤需要回滚玩家余额 */
-            MagicLib.getInstance().getVaultManager().depositAmount(buyer, product.getPrice());
-            return;
-        }
-        /* 发货 */
-        PlayerInventoryUtil.givePlayerItems(buyer, List.of(product.getProduct().clone()));
-        /* 给予卖家金钱 */
-        String formatPrice = FormatUtil.formatAmount(product.getPrice());
-        if (!MagicLib.getInstance().getVaultManager().depositAmount(product.getSellerUniqueId(), product.getPrice())) {
-            PLUGIN.getLoggerManager().warning("玩家 " + product.getSellerName() + " 有一款商品被出售，但是该玩家未能正常的获取到这笔筹款，总金额：" + formatPrice);
-        }
-        PLUGIN.sendMessage(buyer, "PlayerMessage.Success.BuyProduct");
-        PLUGIN.sendBungeeMessage(product.getSellerName(), "PlayerMessage.Success.ProductForSale", Map.of(
-                "player_name", buyer.getName(),
-                "product_price", formatPrice,
-                "product_name", AdventureHelper.serializeComponent(ItemUtil.getItemName(product.getProduct())))
-        );
+    public void buyProduct(Player buyer, Product product, Runnable cancelTask, Runnable errorTask, Runnable successTask) {
+        /* 构建确认菜单 */
+        new ConfirmMenu.Builder().player(buyer)
+                .itemStack(product.getDefaultLoreProduct())
+                .cancelOrCloseTask(cancelTask)
+                .confirmTask(() -> {
+                    /* 玩家的余额无法购买该商品时 */
+                    if (!MagicLib.getInstance().getVaultManager().withdrawAmount(buyer, product.getPrice())) {
+                        PLUGIN.sendMessage(buyer, "PlayerMessage.Error.BuyProductInsufficientBalance");
+                        errorTask.run();
+                        return;
+                    }
+                    /* 修改数据缓存中的状态 */
+                    boolean success = PLUGIN.getProductRepository().update(product.getId(), e -> {
+                        if (e.getStatus() != ProductStatus.ON_SALE) { throw new ProductStatusException("购买失败，商品已经不在市场内"); }
+                        e.setStatus(ProductStatus.BE_SALE);
+                    }, true);
+                    if (!success) {
+                        PLUGIN.sendMessage(buyer, "PlayerMessage.Error.ProductStatusChange");
+                        /* 此步骤需要回滚玩家余额 */
+                        MagicLib.getInstance().getVaultManager().depositAmount(buyer, product.getPrice());
+                        errorTask.run();
+                        return;
+                    }
+                    /* 发货 */
+                    PlayerInventoryUtil.givePlayerItems(buyer, List.of(product.getProduct().clone()));
+                    /* 给予卖家金钱 */
+                    String formatPrice = FormatUtil.formatAmount(product.getPrice());
+                    if (!MagicLib.getInstance().getVaultManager().depositAmount(product.getSellerUniqueId(), product.getPrice())) {
+                        PLUGIN.getLoggerManager().warning("玩家 " + product.getSellerName() + " 有一款商品被出售，但是该玩家未能正常的获取到这笔筹款，总金额：" + formatPrice);
+                    }
+                    PLUGIN.sendMessage(buyer, "PlayerMessage.Success.BuyProduct");
+                    PLUGIN.sendBungeeMessage(product.getSellerName(), "PlayerMessage.Success.ProductForSale", Map.of(
+                            "player_name", buyer.getName(),
+                            "product_price", formatPrice,
+                            "product_name", AdventureHelper.serializeComponent(ItemUtil.getItemName(product.getProduct())))
+                    );
+                    successTask.run();
+                });
     }
 
     /* Todo: 待优化 */
-
     @Override
     public void removeProduct(Player remover, Product product, Runnable cancelTask, Runnable errorTask, Runnable successTask) {
         /* 如果是本人下架则无需理由 */
@@ -175,7 +183,7 @@ public class ProductManager implements IProductManager {
                     .confirmTask(() -> {
                         /* 下架操作 */
                         boolean success = PLUGIN.getProductRepository().update(product.getId(), e -> {
-                            if (e.getStatus() != ProductStatus.ON_SALE) { throw new BuyProductException("下架失败，商品已经不在市场内"); }
+                            if (e.getStatus() != ProductStatus.ON_SALE) { throw new ProductStatusException("下架失败，商品已经不在市场内"); }
                             e.setStatus(ProductStatus.SELLER_REMOVAL);
                             e.setRemovalName(remover.getName());
                             e.setRemovalReasons("本人下架");
@@ -227,7 +235,7 @@ public class ProductManager implements IProductManager {
                             .confirmTask(() -> {
                                 /* 下架操作 */
                                 boolean success = PLUGIN.getProductRepository().update(product.getId(), e -> {
-                                    if (e.getStatus() != ProductStatus.ON_SALE) { throw new BuyProductException("下架失败，商品已经不在市场内"); }
+                                    if (e.getStatus() != ProductStatus.ON_SALE) { throw new ProductStatusException("下架失败，商品已经不在市场内"); }
                                     e.setStatus(ProductStatus.SELLER_REMOVAL);
                                     e.setRemovalName(remover.getName());
                                     e.setRemovalReasons(reasons);

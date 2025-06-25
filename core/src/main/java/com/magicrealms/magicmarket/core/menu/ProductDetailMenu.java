@@ -4,9 +4,7 @@ import com.magicrealms.magiclib.common.enums.ParseType;
 import com.magicrealms.magiclib.common.utils.StringUtil;
 import com.magicrealms.magiclib.core.MagicLib;
 import com.magicrealms.magiclib.core.holder.PageMenuHolder;
-import com.magicrealms.magiclib.core.menu.ConfirmMenu;
 import com.magicrealms.magiclib.core.utils.ItemUtil;
-import com.magicrealms.magicmarket.api.MagicMarket;
 import com.magicrealms.magicmarket.api.product.Product;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import com.magicrealms.magicmarket.core.menu.enums.MarketSort;
@@ -151,7 +149,9 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailMe
             }
             case 'D' -> {
                 if (sufficientAmount) {
-                   buyProduct(DATA);
+                    setDisabledCloseSound(true);
+                    BukkitMagicMarket.getInstance().getProductManager().buyProduct(getPlayer(), DATA,
+                            this::asyncOpenMenu, () -> {} , () -> {});
                 }
             }
             case 'E' -> clickProduct(event, slot);
@@ -166,16 +166,6 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailMe
         }
     }
 
-    private void buyProduct(Product product) {
-        setDisabledCloseSound(true);
-        new ConfirmMenu.Builder().player(getPlayer())
-                .itemStack(product.getDefaultLoreProduct())
-                .cancelOrCloseTask(this::asyncOpenMenu)
-                .confirmTask(() -> MagicMarket.getInstance().getProductManager().buyProduct(getPlayer(), product))
-                .open();
-    }
-
-    @SuppressWarnings("DuplicatedCode")
     private void clickProduct(InventoryClickEvent event, int slot) {
         int index = StringUtils.countMatches(getLayout().substring(0, slot), "E");
         Product product = activeItems.get((getPage() - 1) * PAGE_COUNT + index);
@@ -185,7 +175,9 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailMe
         if (!downProduct) {
             /* 购买商品 */
             if (MagicLib.getInstance().getVaultManager().sufficientAmount(getPlayer(), product.getPrice())) {
-                buyProduct(product);
+                setDisabledCloseSound(true);
+                BukkitMagicMarket.getInstance().getProductManager().buyProduct(getPlayer(), product,
+                        this::asyncOpenMenu, () -> {} , () -> {});
                 return;
             }
             this.prompt = getConfigValue("CustomPapi.Prompt.InsufficientAmount", "", ParseType.STRING);
@@ -193,6 +185,7 @@ public class ProductDetailMenu extends PageMenuHolder implements ProductDetailMe
             return;
         }
         /* 下架商品 */
+        setDisabledCloseSound(true);
         BukkitMagicMarket.getInstance().getProductManager()
                 .removeProduct(getPlayer(), product, this::asyncOpenMenu, this::asyncCloseMenu, this::asyncCloseMenu);
     }

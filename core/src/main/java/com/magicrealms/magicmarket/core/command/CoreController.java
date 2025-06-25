@@ -26,16 +26,25 @@ public class CoreController {
         BukkitMagicMarket.getInstance().setupBlacklistManager();
     }
 
+    /**
+     * 重置配置文件，排除 Redis 与 MongoDB：</magicMarket reload>
+     * @param sender 发送人
+     * @param args 参数类型
+     */
     @Command(text = "^Reload$",
             permissionType = PermissionType.CONSOLE_OR_PERMISSION,
             permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
     public void reload(CommandSender sender, String[] args){
-        BukkitMagicMarket.getInstance().getConfigManager()
-                .reloadConfig(YML_REDIS, YML_MONGODB);
+        BukkitMagicMarket.getInstance().getConfigManager().reloadConfig(YML_REDIS, YML_MONGODB);
         setupCommon();
         BukkitMagicMarket.getInstance().sendMessage(sender, "PlayerMessage.Success.ReloadFile");
     }
 
+    /**
+     * 重置全部配置文件：</magicMarket reload all>
+     * @param sender 发送人
+     * @param args 参数类型
+     */
     @Command(text = "^Reload\\sAll$",
             permissionType = PermissionType.CONSOLE_OR_PERMISSION,
             permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
@@ -49,6 +58,11 @@ public class CoreController {
         BukkitMagicMarket.getInstance().sendMessage(sender, "PlayerMessage.Success.ReloadFile");
     }
 
+    /**
+     * 重置具体配置文件：</magicMarket reload 具体文件名称>
+     * @param sender 发送人
+     * @param args 参数类型
+     */
     @Command(text = "^Reload\\s(?!all\\b)\\S+$", permissionType = PermissionType.CONSOLE_OR_PERMISSION,
             permission = "magic.command.magicmarket.all||magic.command.magicmarket.reload", label = "^magicMarket$")
     public void reloadBy(CommandSender sender, String[] args){

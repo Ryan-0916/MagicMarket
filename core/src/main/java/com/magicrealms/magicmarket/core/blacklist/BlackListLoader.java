@@ -1,6 +1,5 @@
 package com.magicrealms.magicmarket.core.blacklist;
 
-import com.magicrealms.magiclib.bukkit.manage.ConfigManager;
 import com.magicrealms.magiclib.common.utils.Pair;
 import com.magicrealms.magicmarket.core.BukkitMagicMarket;
 import lombok.Getter;
@@ -16,32 +15,31 @@ import static com.magicrealms.magicmarket.common.MagicMarketConstant.*;
  * @Desc 黑名单加载器
  * @date 2025-06-12
  */
-@Getter
 @Slf4j
 public class BlackListLoader {
 
+    private final BukkitMagicMarket PLUGIN;
+    @Getter
     private final List<Pair<String, Integer>> blackList = new ArrayList<>();
 
     public BlackListLoader(BukkitMagicMarket plugin) {
-        this.loadAllCategory(plugin.getConfigManager());
+        this.PLUGIN = plugin;
+        this.loadAllBlackList();
     }
 
-    private void loadAllCategory(ConfigManager configManager) {
-        configManager.getYmlListValue(YML_BLACKLIST, "Items")
+    /**
+     * 加载配置文件内所有物品，添加至 blackList
+     */
+    private void loadAllBlackList() {
+        PLUGIN.getConfigManager().getYmlListValue(YML_BLACKLIST, "Items")
                 .ifPresent(items -> items.forEach(item -> {
             String[] args = item.split("::");
-            if (args.length > 2) {
-                return;
-            }
-            if (args.length == 1) {
-                blackList.add(Pair.of(args[0], 0));
-                return;
-            }
+            if (args.length > 2) { return; }
+            if (args.length == 1) { blackList.add(Pair.of(args[0], 0)); return; }
             try {
                 blackList.add(Pair.of(args[0], Integer.parseInt(args[1])));
             } catch (NumberFormatException e) {
-                log.warn("CustomData argument must be an integer: {}"
-                        , args[1]);
+                PLUGIN.getLoggerManager().warning("处理 blacklist.yml 时出现异常，原因：CustomData参数必须是整数: " + args[1]);
             }
         }));
     }
